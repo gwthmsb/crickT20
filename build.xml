@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="T20Cup" basedir="." default="dist">
+	<property name="bin" value="bin"/>
+	<property name="testBin" value ="testBin"/>
+	<property name="jars" value="jars"/>
+	<property name="reports" location="reports"/>
+	<property name="reports.tests" location="reports/tests"/>
+	<property name="test" value="test"/>
+
+	<property name="lib" value="lib"/>
+
+
+	<path id = "classpath">
+		<fileset dir = "${lib}">
+			<include name = "*.jar"/>
+		</fileset>
+		<pathelement path = "${bin}"/>
+		<pathelement path = "${testBin}"/>
+	</path>
+
+	<target name="dist" depends="clean, create, compile, compile.junit, junit.test, theLastFour, theTieBreaker">
+		<echo message="Created executables for projects. Jars will be available under jars directory"/>
+	</target>
+
+	<target name="create">
+		<mkdir dir="${bin}"/>
+		<mkdir dir="${jars}"/>
+		<mkdir dir="${reports}"/>
+		<mkdir dir="${testBin}"/>
+	</target>
+
+	<target name="clean">
+		<delete dir="${bin}" />
+		<delete dir="${jars}" />
+		<delete dir="${reports}" />
+		<delete dir="${testBin}"/>
+	</target>
+
+	<target name="compile" depends="clean, create">
+		<echo message="compiling java classes"/>
+		<javac debug="true" srcdir="src" destdir="${bin}" source="1.8" target="1.8">
+			<compilerarg value="-Xlint" />
+			<compilerarg value="-Xlint:-serial" />
+			<compilerarg value="-Xlint:-unchecked" />
+			<include name="**/*.java" />
+		</javac>
+	</target>
+
+	<target name="theLastFour" depends="compile">
+		<jar destfile="${jars}/theLastFour.jar"
+			basedir="${bin}"
+			includes="*/**"
+			excludes="*/*Test.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.cricket.t20.executable.TheLastFour"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="theTieBreaker" depends="compile">
+		<jar destfile="${jars}/theTieBreaker.jar"
+			basedir="${bin}"
+			includes="*/**"
+			excludes="*/*Test.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.cricket.t20.executable.TheTieBreaker"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="compile.junit" depends="compile" >
+		<echo message="compiling junit test classes"/>
+		<javac debug="true" srcdir="test" destdir="${testBin}" source="1.8" target="1.8">
+			<classpath refid = "classpath"/>
+			<compilerarg value="-Xlint" />
+			<compilerarg value="-Xlint:-serial" />
+			<compilerarg value="-Xlint:-unchecked" />
+			<include name="**/*.java" />
+		</javac>
+	</target>
+
+	<target name="junit.test" depends="compile, compile.junit" >
+		<mkdir dir="${reports.tests}"/>
+		<junit printsummary="yes" haltonfailure="no">
+			<classpath refid = "classpath"/>
+			<formatter type="plain"/>
+			<formatter type="xml"/>
+			<batchtest fork="no" todir="${reports.tests}">
+				<fileset dir="${test}">
+					<include name="**/*Test*.java"/>
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+
+</project>

@@ -1,0 +1,8 @@
+#Compiled
+bin/
+testBin/
+reports/
+jars/
+
+bin/**/*.class
+testBin/**/*.class
